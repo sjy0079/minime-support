@@ -7,12 +7,16 @@ const multipart = require('connect-multiparty');
 const router = express.Router();
 const multipartMiddleware = multipart({});
 
+/**
+ * 支持的行为：解花，超解花
+ */
+const actions = ['kaika', 'choKaika'];
+
 router.get('/', multipartMiddleware, async function(req, res) {
   const dbPath = `${process.env.MINIME_PATH}/data/db.sqlite3`;
   const paramsCardInfo = checkAndGetCardNumber(req, dbPath, res);
   const paramOngekiCardId = req.query.ongeki_card_id;
-  const paramAddNumber = req.query.add_number;
-  let stockAddNumber = 1;
+  const paramAction = req.query.action;
   if (paramsCardInfo == null) {
     return;
   }
@@ -24,12 +28,21 @@ router.get('/', multipartMiddleware, async function(req, res) {
     });
     return;
   }
-  if (paramAddNumber !== undefined && paramAddNumber !== '') {
-    try {
-      stockAddNumber = Number(paramAddNumber);
-    } catch (e) {
-    }
+  if (paramAction === undefined || paramAction === '') {
+    res.send({
+      code: -3,
+      msg: 'input card action',
+    });
+    return;
   }
+  if (actions.indexOf(paramAction) === -1) {
+    res.send({
+      code: -3,
+      msg: 'don not support this action',
+    });
+    return;
+  }
+
   const db = new Database(dbPath);
   const usersStmt = db.prepare(
       `SELECT id FROM mu3_user_data WHERE access_code = '${cardNumber}'`);
@@ -48,10 +61,13 @@ router.get('/', multipartMiddleware, async function(req, res) {
   const cardInfo = cardStmt.all();
   try {
     if (cardInfo.length > 0) {
-      const {digital_stock} = cardInfo[0];
-      starUp(db, id, paramOngekiCardId, Number(digital_stock), stockAddNumber);
+      doAction(db, id, paramOngekiCardId, paramAction);
     } else {
-      getCard(db, id, paramOngekiCardId, stockAddNumber);
+      res.send({
+        code: -1,
+        msg: 'don\'t have this card!',
+      });
+      return;
     }
   } catch (e) {
     res.send({
@@ -67,30 +83,18 @@ router.get('/', multipartMiddleware, async function(req, res) {
 });
 
 /**
- * 如果已经拥有卡片，则升星（digital_stock + 1）
+ * 进行操作：目前支持解花与超解花
  */
-function starUp(db, id, cardId, stock, stockAddNumber) {
+function doAction(db, id, cardId, action) {
+  let param;
+  if (action === 'kaika') {
+    param = 'kaika_date';
+  } else {
+    param = 'cho_kaika_date';
+  }
   const itemUpdateStmt = db.prepare(
-      'UPDATE mu3_user_card SET digital_stock = ? WHERE profile_id = ? AND card_id = ?');
-  itemUpdateStmt.run([stock + stockAddNumber, id, cardId]);
-}
-
-/**
- * 如果未拥有卡片，则获得
- */
-function getCard(db, id, cardId, stockAddNumber) {
-  const itemInsertStmt = db.prepare(
-      'INSERT INTO mu3_user_card (' +
-      ' id, profile_id, card_id, digital_stock,' +
-      ' analog_stock, level, max_level, exp,' +
-      ' print_count, use_count, is_new, kaika_date,' +
-      ' cho_kaika_date, skill_id, is_acquired, created) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
-  itemInsertStmt.run([
-    generateId(), id, cardId, stockAddNumber,
-    0, 1, 10, 0,
-    1, 0, 'true', '0000-00-00T00:00:00.000Z',
-    '0000-00-00T00:00:00.000Z', 0, 'true', '2020-03-21T00:00:00.000Z',
-  ]);
+      `UPDATE mu3_user_card SET ${param} = '1970-01-01T00:00:00.000Z' WHERE profile_id = ? AND card_id = ?`);
+  itemUpdateStmt.run([id, cardId]);
 }
 
 module.exports = router;

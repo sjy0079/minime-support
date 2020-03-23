@@ -13,6 +13,7 @@ let items = require('./routes/chunithm/items');
 let userInfo = require('./routes/chunithm/user-info');
 // ongeki
 let ongekiAddCard = require('./routes/ongeki/add-card');
+let ongekiModifyCard = require('./routes/ongeki/modify-card');
 
 let compression = require('compression');
 let app = express();
@@ -45,6 +46,7 @@ app.use('/items', items);
 app.use('/userInfo', userInfo);
 app.use('/checkUpdate', checkUpdate);
 app.use('/ongekiAddCard', ongekiAddCard);
+app.use('/ongekiModifyCard', ongekiModifyCard);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
