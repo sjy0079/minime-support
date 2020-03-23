@@ -1,4 +1,4 @@
-const fs = require('fs');
+const {checkAndGetCardNumber} = require('../utils/request-utils');
 const Database = require('@decafcode/sqlite');
 
 const express = require('express');
@@ -15,6 +15,8 @@ const tables_profile_id = [
   'cm_user_map',
   'cm_user_music',
   'cm_user_playlog',
+
+  'mu3_user_card',
 ];
 
 const tables_id = [
@@ -22,19 +24,17 @@ const tables_id = [
   'cm_user_data_ex',
   'cm_user_game_option',
   'cm_user_game_option_ex',
+
+  'mu3_user_data',
 ];
 
 router.get('/', multipartMiddleware, async function(req, res) {
   const dbPath = `${process.env.MINIME_PATH}/data/db.sqlite3`;
-  const cardId = req.query.card;
-  const tableName = req.query.table;
-  if (cardId === undefined || cardId === '') {
-    res.send({
-      code: -3,
-      msg: 'input your card id! (in bin/DEVICE/felica.txt)',
-    });
+  const cardNumber = checkAndGetCardNumber(req, dbPath, res);
+  if (cardNumber == null) {
     return;
   }
+  const tableName = req.query.table;
   if (tableName === undefined || tableName === '') {
     res.send({
       code: -4,
@@ -50,39 +50,22 @@ router.get('/', multipartMiddleware, async function(req, res) {
     });
     return;
   }
-  if (!fs.existsSync(dbPath)) {
-    console.log('minime db not found!');
-    res.send({
-      code: -1,
-      msg: 'minime db not found!',
-    });
-    return;
-  }
   const db = new Database(dbPath);
-  let cardNumber;
-  try {
-    cardNumber = BigInt(`0x${cardId}`).toString(10);
-  } catch (e) {
-    res.send({
-      code: -5,
-      msg: 'invalid card id!',
-    });
-    return;
-  }
-  while (cardNumber.length < 20) {
-    cardNumber = '0' + cardNumber;
-  }
-  console.log(`card number is: ${cardNumber}`);
-  const usersStmt = db.prepare(
+  let usersStmt = db.prepare(
       `SELECT id FROM cm_user_data WHERE access_code = '${cardNumber}'`);
-  const users = usersStmt.all();
+  let users = usersStmt.all();
 
   if (users.length === 0) {
-    res.send({
-      code: -5,
-      msg: 'not such user! check your card id.',
-    });
-    return;
+    usersStmt = db.prepare(
+        `SELECT id FROM mu3_user_data WHERE access_code = '${cardNumber}'`);
+    users = usersStmt.all();
+    if (users.length === 0) {
+      res.send({
+        code: -5,
+        msg: 'not such user! check your card id.',
+      });
+      return;
+    }
   }
   const {id} = users[0];
 

@@ -1,4 +1,4 @@
-const {checkAndGetCardNumber} = require('../utils/request-utils');
+const {checkAndGetCardNumber} = require('../../utils/request-utils');
 const Database = require('@decafcode/sqlite');
 
 const express = require('express');
@@ -8,13 +8,11 @@ const multipartMiddleware = multipart({});
 
 router.get('/', multipartMiddleware, async function(req, res) {
   const dbPath = `${process.env.MINIME_PATH}/data/db.sqlite3`;
-  const cardId = req.query.card;
-  const userName = req.query.user_name;
-
-  const cardNumber = checkAndGetCardNumber(cardId, dbPath, res);
+  const cardNumber = checkAndGetCardNumber(req, dbPath, res);
   if (cardNumber == null) {
     return;
   }
+  const userName = req.query.user_name;
   if (userName === undefined || userName === '') {
     res.send({
       code: -3,

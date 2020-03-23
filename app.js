@@ -3,14 +3,18 @@ let express = require('express');
 let path = require('path');
 let cookieParser = require('cookie-parser');
 let logger = require('morgan');
-let modify = require('./routes/modify');
-let giftCharas = require('./routes/gift-charas');
-let query = require('./routes/query');
-let items = require('./routes/items');
-let userInfo = require('./routes/user-info');
-let checkUpdate = require('./routes/check-update');
-let compression = require('compression');
 
+let checkUpdate = require('./routes/check-update');
+// chuni
+let modify = require('./routes/chunithm/modify');
+let giftCharas = require('./routes/chunithm/gift-charas');
+let query = require('./routes/query');
+let items = require('./routes/chunithm/items');
+let userInfo = require('./routes/chunithm/user-info');
+// ongeki
+let ongekiAddCard = require('./routes/ongeki/add-card');
+
+let compression = require('compression');
 let app = express();
 
 app.all('/*', (req, res, next) => {
@@ -40,6 +44,7 @@ app.use('/query', query);
 app.use('/items', items);
 app.use('/userInfo', userInfo);
 app.use('/checkUpdate', checkUpdate);
+app.use('/ongekiAddCard', ongekiAddCard);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
