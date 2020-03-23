@@ -9,11 +9,12 @@ const multipartMiddleware = multipart({});
 
 router.get('/', multipartMiddleware, async function(req, res) {
   const dbPath = `${process.env.MINIME_PATH}/data/db.sqlite3`;
-  const cardNumber = checkAndGetCardNumber(req, dbPath, res);
+  const paramsCardInfo = checkAndGetCardNumber(req, dbPath, res);
   const paramOngekiCardId = req.query.ongeki_card_id;
-  if (cardNumber == null) {
+  if (paramsCardInfo == null) {
     return;
   }
+  const cardNumber = paramsCardInfo.cardNumber;
   if (paramOngekiCardId === undefined || paramOngekiCardId === '') {
     res.send({
       code: -3,

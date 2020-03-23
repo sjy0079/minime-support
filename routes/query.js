@@ -30,10 +30,11 @@ const tables_id = [
 
 router.get('/', multipartMiddleware, async function(req, res) {
   const dbPath = `${process.env.MINIME_PATH}/data/db.sqlite3`;
-  const cardNumber = checkAndGetCardNumber(req, dbPath, res);
-  if (cardNumber == null) {
+  const cardInfo = checkAndGetCardNumber(req, dbPath, res);
+  if (cardInfo == null) {
     return;
   }
+  const cardNumber = cardInfo.cardNumber;
   const tableName = req.query.table;
   if (tableName === undefined || tableName === '') {
     res.send({
@@ -51,14 +52,18 @@ router.get('/', multipartMiddleware, async function(req, res) {
     return;
   }
   const db = new Database(dbPath);
-  let usersStmt = db.prepare(
-      `SELECT id FROM cm_user_data WHERE access_code = '${cardNumber}'`);
-  let users = usersStmt.all();
-
-  if (users.length === 0) {
+  let usersStmt;
+  let users;
+  if (cardInfo.source === "felica") {
+    usersStmt = db.prepare(
+    `SELECT id FROM cm_user_data WHERE access_code = '${cardNumber}'`);
+    users = usersStmt.all();
+  } else {
     usersStmt = db.prepare(
         `SELECT id FROM mu3_user_data WHERE access_code = '${cardNumber}'`);
     users = usersStmt.all();
+  }
+  if (users.length === 0) {
     if (users.length === 0) {
       res.send({
         code: -5,

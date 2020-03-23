@@ -1,17 +1,19 @@
 const fs = require('fs');
 const {randomBytes} = require('crypto');
 
+// noinspection JSClosureCompilerSyntax
 /**
  * 检查card入参以及数据库path
  *
  * @param req 请求request
  * @param dbPath 数据库存放位置
  * @param res 请求response
- * @returns 如果check通过，则返回卡号，否则返回null
+ * @returns {source: string, cardNumber: string} 卡号与来源
  */
 function checkAndGetCardNumber(req, dbPath, res) {
   const cardId = req.query.card;
   const cardNumberInput = req.query.card_number;
+  let source = '';
   if ((cardId === undefined || cardId === '') &&
       (cardNumberInput === undefined || cardNumberInput === '')) {
     res.send({
@@ -30,10 +32,12 @@ function checkAndGetCardNumber(req, dbPath, res) {
   }
   let cardNumber;
   if (cardNumberInput !== undefined && cardNumberInput !== '') {
-    cardNumber = cardNumberInput
+    cardNumber = cardNumberInput;
+    source = 'aime';
   } else {
     try {
       cardNumber = BigInt(`0x${cardId}`).toString(10);
+      source = 'felica';
     } catch (e) {
       res.send({
         code: -5,
@@ -46,7 +50,10 @@ function checkAndGetCardNumber(req, dbPath, res) {
     cardNumber = '0' + cardNumber;
   }
   console.log(`card number is: ${cardNumber}`);
-  return cardNumber;
+  return {
+    cardNumber: cardNumber,
+    source: source,
+  };
 }
 
 /**

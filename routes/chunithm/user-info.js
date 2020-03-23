@@ -8,10 +8,11 @@ const multipartMiddleware = multipart({});
 
 router.get('/', multipartMiddleware, async function(req, res) {
   const dbPath = `${process.env.MINIME_PATH}/data/db.sqlite3`;
-  const cardNumber = checkAndGetCardNumber(req, dbPath, res);
-  if (cardNumber == null) {
+  const cardInfo = checkAndGetCardNumber(req, dbPath, res);
+  if (cardInfo == null) {
     return;
   }
+  const cardNumber = cardInfo.cardNumber;
   const userName = req.query.user_name;
   if (userName === undefined || userName === '') {
     res.send({
