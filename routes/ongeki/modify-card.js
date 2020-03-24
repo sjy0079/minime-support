@@ -8,9 +8,9 @@ const router = express.Router();
 const multipartMiddleware = multipart({});
 
 /**
- * 支持的行为：解花，超解花
+ * 支持的行为：解花，超解花，反超解
  */
-const actions = ['kaika', 'choKaika'];
+const actions = ['kaika', 'choKaika', 'hanChoKaika'];
 
 router.get('/', multipartMiddleware, async function(req, res) {
   const dbPath = `${process.env.MINIME_PATH}/data/db.sqlite3`;
@@ -87,13 +87,17 @@ router.get('/', multipartMiddleware, async function(req, res) {
  */
 function doAction(db, id, cardId, action) {
   let param;
+  let date = '1970-01-01T00:00:00.000Z';
   if (action === 'kaika') {
     param = 'kaika_date';
-  } else {
+  } else if (action === 'choKaika') {
     param = 'cho_kaika_date';
+  } else if (action === 'hanChoKaika') {
+    param = 'cho_kaika_date';
+    date = '0000-00-00T00:00:00.000Z';
   }
   const itemUpdateStmt = db.prepare(
-      `UPDATE mu3_user_card SET ${param} = '1970-01-01T00:00:00.000Z' WHERE profile_id = ? AND card_id = ?`);
+      `UPDATE mu3_user_card SET ${param} = '${date}'  WHERE profile_id = ? AND card_id = ?`);
   itemUpdateStmt.run([id, cardId]);
 }
 
