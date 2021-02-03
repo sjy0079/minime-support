@@ -90,7 +90,9 @@ router.get('/', multipartMiddleware, async function(req, res) {
   } else {
     for (let column of tableData) {
       Object.keys(column).forEach(k => {
-        column[k] = column[k].toString();
+	if (column[k] != null) {
+          column[k] = column[k].toString();
+	}
       });
     }
     res.send(tableData);
