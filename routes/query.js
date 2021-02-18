@@ -15,6 +15,7 @@ const tables_profile_id = [
   'cm_user_map',
   'cm_user_music',
   'cm_user_playlog',
+  'cm_user_general_data',
 
   'mu3_user_card',
 ];
