@@ -9,7 +9,7 @@ const multipartMiddleware = multipart({});
 /**
  * 物品id，规定可查/改的物品，其余不允许查/改
  */
-const item_ids = [8000, 110, 5060, 5230, 5310];
+const item_ids = [8000, 110, 5060, 5230, 5310, 5410];
 const action_fetch = 'fetch';
 const action_modify = 'modify';
 
