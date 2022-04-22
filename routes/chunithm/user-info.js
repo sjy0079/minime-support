@@ -1,8 +1,8 @@
-const { checkAndGetCardNumber, sendInfo, getUserId, generateId, checkParams } = request('../../utils/request-utils');
-const Database = request('@decafcode/sqlite');
+const { checkAndGetCardNumber, sendInfo, getUserId, generateId, checkParams } = require('../../utils/request-utils');
+const Database = require('@decafcode/sqlite');
 
-const { Router } = request('express');
-const multipart = request('connect-multiparty');
+const { Router } = require('express');
+const multipart = require('connect-multiparty');
 const router = Router();
 const multipartMiddleware = multipart({});
 
