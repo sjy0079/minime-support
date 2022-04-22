@@ -20,7 +20,7 @@ router.get('/', multipartMiddleware, async function (req, res) {
     return;
   }
   const db = new Database(dbPath);
-  const id = getUserId(db, cardNumber, res);
+  const id = getUserId(db, cardNumber, res, false);
   if (id === null) {
     return;
   }

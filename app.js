@@ -11,6 +11,7 @@ let giftCharas = require('./routes/chunithm/gift-charas');
 let query = require('./routes/query');
 let items = require('./routes/chunithm/items');
 let userInfo = require('./routes/chunithm/user-info');
+let updateNewMusic = require('./routes/chunithm/update-music');
 // ongeki
 let ongekiAddCard = require('./routes/ongeki/add-card');
 let ongekiModifyCard = require('./routes/ongeki/modify-card');
@@ -39,6 +40,7 @@ app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/updateNewMusic', updateNewMusic);
 app.use('/modifyUserInfo', modify);
 app.use('/giftCharas', giftCharas);
 app.use('/query', query);

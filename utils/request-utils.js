@@ -82,9 +82,15 @@ function sendInfo(res, code, msg) {
   });
 }
 
-function getUserId(db, cardNumber, res) {
+function getUserId(db, cardNumber, res, isNew) {
+  let tabName;
+  if (isNew) {
+    tabName = 'c3_user_data';
+  } else {
+    tabName = 'cm_user_data';
+  }
   const usersStmt = db.prepare(
-    `SELECT id FROM cm_user_data WHERE access_code = '${cardNumber}'`);
+    `SELECT id FROM '${tabName}' WHERE access_code = '${cardNumber}'`);
   const users = usersStmt.all();
   if (users.length === 0) {
     sendInfo(res, -5, 'not such user! check your card id.');
