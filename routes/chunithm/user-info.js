@@ -1,8 +1,8 @@
-import { checkAndGetCardNumber, sendInfo, getUserId, generateId, checkParams } from '../../utils/request-utils';
-import Database from '@decafcode/sqlite';
+const { checkAndGetCardNumber, sendInfo, getUserId, generateId, checkParams } = request('../../utils/request-utils');
+const Database = request('@decafcode/sqlite');
 
-import { Router } from 'express';
-import multipart from 'connect-multiparty';
+const { Router } = request('express');
+const multipart = request('connect-multiparty');
 const router = Router();
 const multipartMiddleware = multipart({});
 
