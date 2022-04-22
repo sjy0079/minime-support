@@ -1,5 +1,5 @@
 const fs = require('fs');
-const {randomBytes} = require('crypto');
+const { randomBytes } = require('crypto');
 
 // noinspection JSClosureCompilerSyntax
 /**
@@ -15,7 +15,7 @@ function checkAndGetCardNumber(req, dbPath, res) {
   const cardNumberInput = req.query.card_number;
   let source = '';
   if ((cardId === undefined || cardId === '') &&
-      (cardNumberInput === undefined || cardNumberInput === '')) {
+    (cardNumberInput === undefined || cardNumberInput === '')) {
     res.send({
       code: -3,
       msg: 'input your card id! (in bin/DEVICE/felica.txt or aime.txt)',
@@ -66,5 +66,36 @@ function generateId() {
   return val.toString();
 }
 
+function checkParams(...args) {
+  for (const arg in args) {
+    if (arg === undefined || arg === '') {
+      return false;
+    }
+  }
+  return true;
+}
+
+function sendInfo(res, code, msg) {
+  res.send({
+    code: code,
+    msg: msg
+  });
+}
+
+function getUserId(db, cardNumber, res) {
+  const usersStmt = db.prepare(
+    `SELECT id FROM cm_user_data WHERE access_code = '${cardNumber}'`);
+  const users = usersStmt.all();
+  if (users.length === 0) {
+    sendInfo(res, -5, 'not such user! check your card id.');
+    return null;
+  }
+  const { id } = users[0];
+  return id;
+}
+
 module.exports.checkAndGetCardNumber = checkAndGetCardNumber;
 module.exports.generateId = generateId;
+module.exports.sendInfo = sendInfo;
+module.exports.getUserId = getUserId;
+module.exports.checkParams = checkParams;
