@@ -79,4 +79,4 @@ function modifyTeamInfo(res, db, profileId, teamName) {
   }
 }
 
-export default router;
+module.exports = router;
