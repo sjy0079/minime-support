@@ -37,7 +37,7 @@ router.get('/', multipartMiddleware, async function (req, res) {
     return;
   }
 
-  modifyScore(res, db, id, mid, score, levelStr, isFcB, isAjB);
+  modifyScore(res, db, id, musicId, score, levelStr, isFcB, isAjB);
 });
 
 function modifyScore(res, db, profileId, mid, score, levelStr, isFcB, isAjB) {
