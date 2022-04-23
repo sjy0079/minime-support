@@ -67,8 +67,8 @@ function generateId() {
 }
 
 function checkParams(...args) {
-  for (const arg in args) {
-    if (arg === undefined || arg === '') {
+  for (const index in args) {
+    if (args[index] === undefined || args[index] === '') {
       return false;
     }
   }
